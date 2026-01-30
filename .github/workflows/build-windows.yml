@@ -1,0 +1,30 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Run jpackage
+      run: |
+        cd frontend
+        jpackage --name NetworkChat --input . --main-jar client.jar --type exe --win-dir-chooser --win-menu --win-shortcut --dest build_output
+
+    - name: Upload EXE
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetworkChat-Windows
+        path: frontend/build_output/*.exe
