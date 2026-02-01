@@ -41,6 +41,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -78,9 +79,12 @@ public class ClientWindow extends JFrame implements Runnable {
 			boolean connect = client.openConnection(address);
 			if (!connect) {
 				System.err.println("Connection Failed!");
+				return;
 			}
+			// TCP: Connection is live instantly
 			String connection = "/c/" + name + "/e/";
-			client.send(connection.getBytes());
+			client.send(connection);
+			
 			users = new OnlineUsers(this);
 			running = true;
 			run = new Thread(this, "Running");
@@ -103,7 +107,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println("Shutdown hook running...");
 	        String disconnect = "/d/" + client.getID() + "/e/";
-	        client.send(disconnect.getBytes());
+	        client.send(disconnect);
 	        try { Thread.sleep(200); } catch (Exception e) {}
 	        client.close();
 		}));
@@ -175,7 +179,7 @@ public class ClientWindow extends JFrame implements Runnable {
 	
 	private void closeAndExit() {
 		String disconnect = "/d/" + client.getID() + "/e/";
-		client.send(disconnect.getBytes()); 
+		client.send(disconnect); 
 		running = false;
 		client.close();
 		System.exit(0);
@@ -191,12 +195,12 @@ public class ClientWindow extends JFrame implements Runnable {
 	    }
 	    
 	    // /r/invite/TargetID/RoomName/e/
-	    client.send(("/r/invite/" + targetID + "/" + roomName + "/e/").getBytes());
+	    client.send("/r/invite/" + targetID + "/" + roomName + "/e/");
 	    JOptionPane.showMessageDialog(this, "Invitation sent!");
 	}
 	
 	private void requestRoomList() {
-		client.send(("/r/req-list/" + client.getID() + "/e/").getBytes());
+		client.send("/r/req-list/" + client.getID() + "/e/");
 		// Maybe show a "Loading..." dialog if we want to be fancy
 	}
 	
@@ -209,7 +213,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		if(password == null || password.isEmpty()) password = "null";
 		
 		// Send join request
-        client.send(("/r/join/" + roomName + "/" + password + "/" + client.getID() + "/e/").getBytes());
+        client.send("/r/join/" + roomName + "/" + password + "/" + client.getID() + "/e/");
         // Do NOT open tab yet. Wait for /r/joined/ confirmation.
 	}
 	
@@ -229,7 +233,7 @@ public class ClientWindow extends JFrame implements Runnable {
 	        String pass = passField.getText().trim();
 	        if(pass.isEmpty()) pass = "null";
 	        if (!name.isEmpty()) {
-	            client.send(("/r/create/" + name + "/" + pass + "/" + client.getID() + "/e/").getBytes());
+	            client.send("/r/create/" + name + "/" + pass + "/" + client.getID() + "/e/");
 	            // Auto join happens on server side which sends confirmation
 	        }
 	    }
@@ -247,7 +251,6 @@ public class ClientWindow extends JFrame implements Runnable {
 	                final String msg = message;
 	                SwingUtilities.invokeLater(() -> processMessage(msg));
 	            }
-	            try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
 	        }
 	    });
 	    listen.start();
@@ -256,8 +259,11 @@ public class ClientWindow extends JFrame implements Runnable {
 	private void processMessage(String message) {
 	    if(message.startsWith("/c/")) {
 	        client.setID(Integer.parseInt(message.split("/c/|/e/")[1]));
-	        openRooms.get("Global").console("Connected! ID: " + client.getID(), Color.GRAY);
+	        openRooms.get("Global").console("Connected! ID: " + client.getID(), Color.GRAY, false);
 	    
+	    } else if(message.startsWith("/i/")) {
+	    	client.send("/i/" + client.getID() + "/e/");
+	    	
 	    } else if(message.startsWith("/m/")) {
             // /m/RoomName/Message/e/
 	        String[] parts = message.split("/", 5); // Empty, m, RoomName, Content...
@@ -271,22 +277,31 @@ public class ClientWindow extends JFrame implements Runnable {
 	            
 	            if(openRooms.containsKey(room)) {
 	                Color c = Color.BLACK;
-	                if(content.startsWith("Server:")) c = Color.RED;
-	                else {
+	                boolean isMe = false;
+	                if(content.startsWith("Server:")) {
+	                	c = Color.RED;
+	                } else {
 	                	String name = content.split(":")[0];
-	                	c = getUserColor(name);
+	                	if(name.contains("(" + client.getID() + ")")) {
+	                		isMe = true;
+	                		c = Color.BLUE; 
+	                	} else {
+	                		c = getUserColor(name);
+	                	}
 	                }
-	                openRooms.get(room).console(content, c);
+	                openRooms.get(room).console(content, c, isMe);
 	            }
 	        }
 	        
 	    } else if(message.startsWith("/i/")) {
-	        client.send(("/i/" + client.getID() + "/e/").getBytes());
+	        client.send("/i/" + client.getID() + "/e/");
 	        
 	    } else if(message.startsWith("/u/")) {
-	    	String userData = message.substring(3, message.length() - 3);
-	        currentOnlineUsers = userData.split("/n/");
-	        SwingUtilities.invokeLater(() -> users.update(currentOnlineUsers));
+	    	String raw = message.substring(3);
+	    	if(raw.endsWith("e/")) raw = raw.substring(0, raw.length() - 2);
+	    	String[] u = raw.split("/u/");
+	    	currentOnlineUsers = u; // Fix: Update the list variable!
+	        users.update(u);
 	        
 	    } else if (message.startsWith("/r/invitation/")) {
 	        // /r/invitation/RoomName/e/
@@ -296,7 +311,7 @@ public class ClientWindow extends JFrame implements Runnable {
 	                "Room Invite", JOptionPane.YES_NO_OPTION);
 	        
 	        if(choice == JOptionPane.YES_OPTION) {
-	             client.send(("/r/join/" + roomName + "/null/" + client.getID() + "/e/").getBytes());
+	             client.send("/r/join/" + roomName + "/null/" + client.getID() + "/e/");
 	        }
 	        
 	    } else if (message.startsWith("/r/members/")) {
@@ -420,15 +435,25 @@ public class ClientWindow extends JFrame implements Runnable {
 	        String msg = client.getName() + " (" + client.getID() + "): " + text;
 	        
 	        String packet = "/m/" + roomName + "/" + msg + "/e/";
-	        client.send(packet.getBytes());
+	        client.send(packet);
 	        message.setText("");
 	    }
 	    
-	    public void console(String msg, Color c) {
+	    public void console(String msg, Color c, boolean isMe) {
 	        Style style = history.addStyle("Style", null);
 	        StyleConstants.setForeground(style, c);
+	        int len = doc.getLength();
 	        try {
-				doc.insertString(doc.getLength(), msg + "\n", style);
+				doc.insertString(len, msg + "\n", style);
+				
+				SimpleAttributeSet parAttrs = new SimpleAttributeSet();
+				if (isMe) {
+					StyleConstants.setAlignment(parAttrs, StyleConstants.ALIGN_RIGHT);
+				} else {
+					StyleConstants.setAlignment(parAttrs, StyleConstants.ALIGN_LEFT);
+				}
+				doc.setParagraphAttributes(len, 1, parAttrs, false);
+				
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}

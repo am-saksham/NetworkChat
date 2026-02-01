@@ -1,29 +1,10 @@
 package com.saksham.networkchat;
-import java.awt.EventQueue;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.DefaultCaret;
-
-import java.awt.GridBagLayout;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
-
-import java.awt.GridBagConstraints;
-import javax.swing.JButton;
-import java.awt.Insets;
-import javax.swing.JTextField;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
@@ -31,8 +12,12 @@ public class Client {
 	private static final long serialVersionUID = 1L;
 	private String name, address;
 	private int port;
-	private DatagramSocket socket;
-	private InetAddress ip;
+	
+	// TCP Components
+	private Socket socket;
+	private PrintWriter out;
+	private BufferedReader in;
+	
 	private Thread send;
 	private int ID = -1;
 	
@@ -57,53 +42,58 @@ public class Client {
 
 	public boolean openConnection(String address) {
 		try {
-			socket = new DatagramSocket();
-			socket.setSoTimeout(2000);
-			ip = InetAddress.getByName(address);
+			// SSL Properties
+			System.setProperty("javax.net.ssl.trustStore", "client.truststore");
+			System.setProperty("javax.net.ssl.trustStorePassword", "password123");
+			
+			javax.net.ssl.SSLSocketFactory ssf = (javax.net.ssl.SSLSocketFactory) javax.net.ssl.SSLSocketFactory.getDefault();
+			socket = ssf.createSocket(address, port);
+			// Setup streams
+			out = new PrintWriter(socket.getOutputStream(), true);
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			return true;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			return false;
-		} catch (SocketException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
-		return true;
-
 	}
 
 	public String receive() {
-		byte[] data = new byte[1024];
-		DatagramPacket packet = new DatagramPacket(data, data.length);
 		try {
-			socket.receive(packet);
-			return new String(packet.getData(), 0, packet.getLength());
+			// This blocks until a line is received
+			String line = in.readLine();
+			System.out.println("CLIENT RAW RECV: " + line);
+			return line;
 		} catch (IOException e) {
 			return null;
 		}
 	}
 
+	public void send(final String message) {
+		System.out.println("CLIENT SEND: " + message);
+		// Just write to stream
+		if(out != null) {
+			out.println(message);
+		}
+	}
+	
+	// Overload for bytes (legacy support, converts to string)
 	public void send(final byte[] data) {
-		send = new Thread("Send") {
-			public void run() {
-				DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
-				try {
-					socket.send(packet);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		send.start();
+		String message = new String(data);
+		send(message);
 	}
 	
 	public void close() {
-		new Thread() {
-			public void run() {
-				synchronized(socket) {
-					socket.close();
-				}
-			}
-		}.start();
+		try {
+			if(socket != null) socket.close();
+			if(in != null) in.close();
+			if(out != null) out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setID(int ID) {

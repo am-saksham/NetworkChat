@@ -1,1 +1,16 @@
-/bin/
+# Binaries
+bin/
+*.class
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Secrets & Keys (Generate these using keygen.sh)
+*.keystore
+*.truststore
+*.cer
+
+# OS
+.DS_Store
