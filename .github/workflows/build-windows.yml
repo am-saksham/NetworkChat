@@ -21,7 +21,7 @@ jobs:
     - name: Run jpackage
       run: |
         cd frontend
-        jpackage --name NetworkChat --input . --main-jar client.jar --type exe --win-dir-chooser --win-menu --win-shortcut --dest build_output
+        jpackage --name NetworkChat --input . --main-jar client.jar --type exe --win-dir-chooser --win-menu --win-shortcut --icon assets/logo.ico --dest build_output
 
     - name: Upload EXE
       uses: actions/upload-artifact@v4

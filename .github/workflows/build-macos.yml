@@ -28,7 +28,7 @@ jobs:
     - name: Run jpackage
       run: |
         cd frontend
-        jpackage --name NetworkChat --input . --main-jar client.jar --type dmg --dest build_output --java-options "-Djavax.net.ssl.trustStore=client.truststore -Djavax.net.ssl.trustStorePassword=password123"
+        jpackage --name NetworkChat --input . --main-jar client.jar --type dmg --dest build_output --icon assets/logo.icns --java-options "-Djavax.net.ssl.trustStore=client.truststore -Djavax.net.ssl.trustStorePassword=password123"
       # Note: We are baking in JVM options, but client.truststore needs to be INSIDE the app bundle or handled correctly.
       # Actually, since we use "TrustAll" in code now, the truststore args are less critical, but good to have if we revert.
       # HOWEVER, --input . includes client.truststore if it is in frontend dir.
