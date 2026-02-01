@@ -56,15 +56,15 @@ The backend is deployed on **AWS EC2**, providing 24/7 availability, while the c
 ## 🏗️ System Architecture
 
 ```mermaid
-graph LR
+flowchart LR
     User[User] -->|Interacts| UI[Swing UI Client]
     subgraph Local Machine
         UI -->|Connects| SSL[SSL/TLS Socket Layer]
     end
     
-    SSL <==>|Encrypted TCP (Port 8192)| FW[AWS Security Group]
+    SSL <-->|Encrypted TCP Port 8192| FW[AWS Security Group]
     
-    subgraph AWS Cloud (EC2)
+    subgraph AWS Cloud EC2
         FW --> Server[Java Server Backend]
         Server -->|Manages| ClientHandler[Client Threads]
         ClientHandler -->|Broadcasts| Rooms[Chat Rooms]
