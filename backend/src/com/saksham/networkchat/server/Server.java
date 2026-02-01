@@ -48,33 +48,28 @@ public class Server implements Runnable {
 		System.out.println("Server started on SSL port " + port);
 		
 		// Console input handler (Admin Commands)
+		// Console input handler (Admin Commands)
 		new Thread(() -> {
-			Scanner scanner = new Scanner(System.in);
-			while(running) {
-				String text = scanner.nextLine();
-				if(!text.startsWith("/")) {
-					sendToAll("/m/Server: " + text + "/e/");
-					continue;
-				}
-				text = text.substring(1);
-				if(text.equals("raw")) {
-					// Raw mode toggle removed for simplicity
-				} else if(text.equals("clients")) {
-					System.out.println("Clients:");
-					for(ServerClient c: allClients) {
-						System.out.println(c.name + "(" + c.getID() + ")");
+			try (Scanner scanner = new Scanner(System.in)) {
+				while(running) {
+					if(!scanner.hasNextLine()) break;
+					String text = scanner.nextLine();
+					
+					if(!text.startsWith("/")) {
+						sendToAll("/m/Server: " + text + "/e/");
+						continue;
 					}
-					System.out.println("========");
-				} else if(text.startsWith("kick")) {
-					// /kick ID
-				} else if(text.equals("quit")) {
-					quit();
-				} else if(text.equals("help")) {
-					printHelp();
-				} else {
-					System.out.println("Unknown command.");
-					printHelp();
+					text = text.substring(1);
+					if(text.equals("quit")) {
+						quit();
+					} else if(text.equals("help")) {
+						printHelp();
+					} else {
+						System.out.println("Unknown command.");
+					}
 				}
+			} catch(Exception e) {
+				System.out.println("Console input disabled (Headless mode).");
 			}
 		}).start();
 		
@@ -128,7 +123,7 @@ public class Server implements Runnable {
 					
 					System.out.println(name + " (" + id + ") connected from " + socket.getInetAddress());
 					
-					ServerClient client = new ServerClient(name, socket, id); // Takes over the socket
+					ServerClient client = new ServerClient(name, socket, id, in, out); // Takes over the socket
 					// Note: ServerClient constructor creates NEW streams on same socket. This is fine.
 					
 					synchronized(allClients) {

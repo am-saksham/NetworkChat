@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.net.ssl.*;
+import java.security.cert.X509Certificate;
+import java.security.SecureRandom;
 
 public class Client {
 
@@ -42,20 +45,26 @@ public class Client {
 
 	public boolean openConnection(String address) {
 		try {
-			// SSL Properties
-			System.setProperty("javax.net.ssl.trustStore", "client.truststore");
-			System.setProperty("javax.net.ssl.trustStorePassword", "password123");
+			// Create a trust manager that does not validate certificate chains
+			TrustManager[] trustAllCerts = new TrustManager[]{
+				new X509TrustManager() {
+					public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+					public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+					public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+				}
+			};
+
+			// Install the all-trusting trust manager
+			SSLContext sc = SSLContext.getInstance("TLS");
+			sc.init(null, trustAllCerts, new SecureRandom());
+			SSLSocketFactory ssf = sc.getSocketFactory();
 			
-			javax.net.ssl.SSLSocketFactory ssf = (javax.net.ssl.SSLSocketFactory) javax.net.ssl.SSLSocketFactory.getDefault();
 			socket = ssf.createSocket(address, port);
 			// Setup streams
 			out = new PrintWriter(socket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			return true;
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -65,7 +74,6 @@ public class Client {
 		try {
 			// This blocks until a line is received
 			String line = in.readLine();
-			System.out.println("CLIENT RAW RECV: " + line);
 			return line;
 		} catch (IOException e) {
 			return null;
@@ -73,7 +81,6 @@ public class Client {
 	}
 
 	public void send(final String message) {
-		System.out.println("CLIENT SEND: " + message);
 		// Just write to stream
 		if(out != null) {
 			out.println(message);

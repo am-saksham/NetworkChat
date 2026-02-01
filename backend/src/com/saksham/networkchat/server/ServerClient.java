@@ -22,24 +22,17 @@ public class ServerClient implements Runnable {
 	private Thread run;
 	private boolean running = false;
 	
-	public ServerClient(String name, Socket socket, int ID) {
+	public ServerClient(String name, Socket socket, int ID, BufferedReader in, PrintWriter out) {
 		this.name = name;
 		this.socket = socket;
 		this.ID = ID;
+		this.in = in;
+		this.out = out;
 		
-		try {
-			// Initialize Streams
-			out = new PrintWriter(socket.getOutputStream(), true); // Auto-flush
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			
-			// Start listening thread
-			run = new Thread(this, "Client-" + ID);
-			running = true;
-			run.start();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// Start listening thread
+		run = new Thread(this, "Client-" + ID);
+		running = true;
+		run.start();
 	}
 	
 	public int getID() {
@@ -71,6 +64,7 @@ public class ServerClient implements Runnable {
 	public void send(String message) {
 		if(out != null) {
 			out.println(message);
+			out.flush();
 		}
 	}
 	
