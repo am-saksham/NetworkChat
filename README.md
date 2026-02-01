@@ -24,23 +24,50 @@ The backend is deployed on **AWS EC2**, providing 24/7 availability, while the c
 
 ## ✨ Key Features
 
-- **🔒 End-to-End Security**:
-  - Full **SSL/TLS encryption** for all data transmission.
-  - Custom Keystore/Truststore management with self-signed certificate handling.
-- **💬 Real-time Messaging**:
-  - Instant message delivery using persistent TCP sockets.
-  - "Trust All" certificate logic for seamless connectivity across varied network environments (e.g., University WiFi).
-- **🏘️ Room Management**:
-  - **Global Chat**: Public lobby for all users.
-  - **Private Rooms**: Create password-protected rooms.
-  - **Invitations**: Send direct invites to online users (bypasses password requirement).
-- **👥 User Experience**:
-  - **Live User List**: See who is online in real-time.
-  - **Rich UI**: Color-coded usernames, tabbed interface for multiple rooms, and system notifications.
-  - **Auto-Login**: Pre-configured connection details for instant access.
-- **⚙️ Robust Backend**:
-  - Handles client disconnects, timeouts, and "zombie" connections gracefully.
-  - Multi-threaded architecture supporting concurrent users.
+### 🔒 Security & Privacy
+*   **Enterprise-Grade Encryption**: All messages are protected using **SSL/TLS (Secure Sockets Layer)** with custom keystore management.
+*   **Private Rooms**: Create password-protected channels to ensure sensitive conversations stay private.
+*   **Bypass-Invite System**: Securely invite trusted users to private rooms without sharing the password explicitly.
+
+### 💬 Instant Messaging
+*   **Persistent TCP Connections**: Unlike UDP, our custom TCP protocol ensures ordered, reliable delivery of every message.
+*   **Real-Time Status**: Instant feedback on who joins or leaves the global lobby or private rooms.
+*   **Zero Latency**: Optimized byte-stream handling for immediate message propagation.
+
+### 🖥️ Modern User Interface
+*   **Tabbed Chat Windows**: Manage multiple conversations simultaneously with a clean, browser-like tabbed interface.
+*   **Rich User List**: Visual indicators for active users, with right-click context menus for interactions.
+*   **Color-Coded Identities**: Unique colors assigned to users for easy visual distinction in busy chat rooms.
+*   **System Notifications**: Desktop-native alerts when you receive invites or important system messages.
+
+### 🌐 Connectivity
+*   **Cross-Network Compatibility**: "Trust All" SSL logic ensures the client works even on restricted networks (e.g., University WiFi, Corporate Firewalls).
+*   **Auto-Reconnect**: Intelligent handling of connection drops and "zombie" socket cleanup.
+
+---
+
+## 📖 User Guide
+
+### 1. Joining the Network
+*   Launch the application.
+*   The **Server IP** (AWS EC2) and **Port** are pre-filled for convenience.
+*   Enter your **Username** and click **Login**.
+
+### 2. Creating a Room
+*   Click the **Create Room** button in the top menu.
+*   Enter a unique **Room Name**.
+*   (Optional) Set a **Password** to make it private.
+*   Click **Create**. A new tab will open for your room.
+
+### 3. Inviting Users
+*   Right-click on any user in the **Online Users** list.
+*   Select **Invite to [Room Name]**.
+*   The target user will receive a popup invitation. **If they accept, they join instantly without needing the password.**
+
+### 4. Joining a Room Manually
+*   Click **Join Room**.
+*   Select a room from the public list.
+*   If protected, enter the password.
 
 ## 🛠️ Technology Stack
 
