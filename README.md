@@ -53,6 +53,31 @@ The backend is deployed on **AWS EC2**, providing 24/7 availability, while the c
 | **Hosting** | AWS EC2 | Amazon Linux 2023 server instance |
 | **Build** | GitHub Actions | CI/CD for .exe and .dmg generation |
 
+## 🏗️ System Architecture
+
+```mermaid
+graph LR
+    User[User] -->|Interacts| UI[Swing UI Client]
+    subgraph Local Machine
+        UI -->|Connects| SSL[SSL/TLS Socket Layer]
+    end
+    
+    SSL <==>|Encrypted TCP (Port 8192)| FW[AWS Security Group]
+    
+    subgraph AWS Cloud (EC2)
+        FW --> Server[Java Server Backend]
+        Server -->|Manages| ClientHandler[Client Threads]
+        ClientHandler -->|Broadcasts| Rooms[Chat Rooms]
+        ClientHandler -->|Updates| Users[Active User List]
+    end
+```
+
+The application follows a standard **Client-Server** architecture secured via SSL/TLS:
+1.  **Client**: Initiates a TCP connection to `52.66.246.194:8192`.
+2.  **Handshake**: Server establishes a secure SSL tunnel.
+3.  **Authentication**: User sends hashed credentials (optional) or guest login.
+4.  **Session**: A persistent `Socket` is maintained for real-time bi-directional communication.
+
 ## 📸 Screenshots
 
 | Login Screen | Chat Interface |
