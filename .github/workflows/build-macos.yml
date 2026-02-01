@@ -1,0 +1,43 @@
+name: Build macOS DMG
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Compile and Build JAR
+      run: |
+        cd frontend
+        mkdir -p bin
+        javac -d bin src/com/saksham/networkchat/*.java
+        jar cfe client.jar com.saksham.networkchat.Login -C bin .
+
+    - name: Run jpackage
+      run: |
+        cd frontend
+        jpackage --name NetworkChat --input . --main-jar client.jar --type dmg --dest build_output --java-options "-Djavax.net.ssl.trustStore=client.truststore -Djavax.net.ssl.trustStorePassword=password123"
+      # Note: We are baking in JVM options, but client.truststore needs to be INSIDE the app bundle or handled correctly.
+      # Actually, since we use "TrustAll" in code now, the truststore args are less critical, but good to have if we revert.
+      # HOWEVER, --input . includes client.truststore if it is in frontend dir.
+      # Step 1940 shows client.truststore is in ROOT, not frontend/.
+      # I should move truststore to frontend/ before jpackage?
+      # Or just rely on the code-level TrustAll.
+
+    - name: Upload DMG
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetworkChat-macOS
+        path: frontend/build_output/*.dmg

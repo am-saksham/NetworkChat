@@ -25,8 +25,9 @@ public class Server implements Runnable {
 		this.port = port;
 		try {
 			// SSL Properties
-			System.setProperty("javax.net.ssl.keyStore", "server.keystore");
-			System.setProperty("javax.net.ssl.keyStorePassword", "password123");
+			// Keystore Path (Passed via JVM arguments now)
+			// System.setProperty("javax.net.ssl.keyStore", "server.keystore");
+			// System.setProperty("javax.net.ssl.keyStorePassword", "password123");
 			
 			javax.net.ssl.SSLServerSocketFactory ssf = (javax.net.ssl.SSLServerSocketFactory) javax.net.ssl.SSLServerSocketFactory.getDefault();
 			serverSocket = ssf.createServerSocket(port);
