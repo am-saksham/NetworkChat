@@ -1,48 +1,104 @@
-# NetworkChat
+# Network Chat
 
-This project has been separated into `backend` (Server) and `frontend` (Client).
+<div align="center">
+  <img src="assets/logo.png" alt="NetworkChat Logo" width="200"/>
+  <br>
+  
+  [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/am-saksham/NetworkChat)
+  [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+  [![Java](https://img.shields.io/badge/Java-21-orange)](https://jdk.java.net/21/)
+  [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](https://github.com/am-saksham/NetworkChat/releases)
 
-## How to Run
+  **Secure, Real-time, Room-based Messaging Application**
+  <br>
+  *Built with Java Swing, SSL/TLS, and TCP Sockets.*
+</div>
 
-### Using Scripts (Mac/Linux)
+---
 
-1.  **Run Server**:
+## 🚀 Overview
+
+**NetworkChat** is a robust, enterprise-grade chat application designed for secure communication. Unlike standard chat apps, NetworkChat uses a custom TCP protocol over SSL/TLS to ensure that every message is encrypted and delivered reliably. It features a modern Swing-based UI with support for multiple chat rooms, direct user invites, and persistent connections.
+
+The backend is deployed on **AWS EC2**, providing 24/7 availability, while the client is packaged as a native executable for easy distribution.
+
+## ✨ Key Features
+
+- **🔒 End-to-End Security**:
+  - Full **SSL/TLS encryption** for all data transmission.
+  - Custom Keystore/Truststore management with self-signed certificate handling.
+- **💬 Real-time Messaging**:
+  - Instant message delivery using persistent TCP sockets.
+  - "Trust All" certificate logic for seamless connectivity across varied network environments (e.g., University WiFi).
+- **🏘️ Room Management**:
+  - **Global Chat**: Public lobby for all users.
+  - **Private Rooms**: Create password-protected rooms.
+  - **Invitations**: Send direct invites to online users (bypasses password requirement).
+- **👥 User Experience**:
+  - **Live User List**: See who is online in real-time.
+  - **Rich UI**: Color-coded usernames, tabbed interface for multiple rooms, and system notifications.
+  - **Auto-Login**: Pre-configured connection details for instant access.
+- **⚙️ Robust Backend**:
+  - Handles client disconnects, timeouts, and "zombie" connections gracefully.
+  - Multi-threaded architecture supporting concurrent users.
+
+## 🛠️ Technology Stack
+
+| Component | Technology | Description |
+|-----------|------------|-------------|
+| **Language** | Java 21 | Core logic and networking |
+| **GUI** | Java Swing | Native desktop interface |
+| **Networking** | TCP Sockets | Reliable, ordered data stream |
+| **Security** | SSL/TLS (JSSE) | Encrypted transport layer |
+| **Hosting** | AWS EC2 | Amazon Linux 2023 server instance |
+| **Build** | GitHub Actions | CI/CD for .exe and .dmg generation |
+
+## 📸 Screenshots
+
+| Login Screen | Chat Interface |
+|:---:|:---:|
+| <img src="docs/screenshot_login.png" alt="Login Screen" width="400"/> | <img src="docs/screenshot_chat.png" alt="Chat Window" width="400"/> |
+
+*(Note: Screenshots to be added. Run the app to see the live UI!)*
+
+## 📦 Installation
+
+### Download Binaries
+Go to the [Releases](https://github.com/am-saksham/NetworkChat/releases) page to download the installer for your OS:
+- **Windows**: `NetworkChat-Setup.exe`
+- **macOS**: `NetworkChat.dmg`
+
+### Quick Start (Source)
+If you prefer running from source:
+
+1.  **Clone the Repository**
     ```bash
-    ./run_server.sh
+    git clone https://github.com/am-saksham/NetworkChat.git
+    cd NetworkChat
     ```
-    This will start the server on port `8192`.
 
-2.  **Run Client**:
+2.  **Run Client**
     ```bash
     ./run_client.sh
     ```
-    This will launch the client login window.
 
-### Manual Steps
+## 🌐 Server Deployment
 
-#### Server
-1.  Navigate to the project root.
-2.  Compile the server code:
-    ```bash
-    mkdir -p backend/bin
-    javac -d backend/bin backend/src/com/saksham/networkchat/server/*.java
-    ```
-3.  Run the server (replace `8192` with your desired port):
-    ```bash
-    java -cp backend/bin com.saksham.networkchat.server.ServerMain 8192
-    ```
+The server is currently hosted and live at `52.66.246.194:8192`.
+To host your own instance:
 
-#### Client
-1.  Navigate to the project root.
-2.  Compile the client code:
+1.  **Generate Keys**:
     ```bash
-    mkdir -p frontend/bin
-    javac -d frontend/bin frontend/src/com/saksham/networkchat/*.java
+    ./keygen.sh
     ```
-3.  Run the client:
+2.  **Compile & Run**:
     ```bash
-    java -cp frontend/bin com.saksham.networkchat.Login
+    ./run_server.sh
     ```
+    *Ensure Port 8192 is open in your firewall.*
 
-## Eclipse Setup
-You can import the `backend` and `frontend` folders as existing Java projects into Eclipse.
+---
+
+<div align="center">
+  <sub>Built with ❤️ by Saksham</sub>
+</div>
