@@ -19,6 +19,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Compile and Build JAR
+      shell: bash
       run: |
         cd frontend
         rm -f client.jar
