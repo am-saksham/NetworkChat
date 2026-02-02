@@ -21,8 +21,10 @@ jobs:
     - name: Compile and Build JAR
       run: |
         cd frontend
+        rm -f client.jar
         mkdir -p bin
-        javac -d bin src/com/saksham/networkchat/*.java
+        find src -name "*.java" > sources.txt
+        javac -d bin @sources.txt
         jar cfe client.jar com.saksham.networkchat.Login -C bin .
 
     - name: Run jpackage
