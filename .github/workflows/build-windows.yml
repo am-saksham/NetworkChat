@@ -18,6 +18,13 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
+    - name: Compile and Build JAR
+      run: |
+        cd frontend
+        mkdir bin
+        javac -d bin src/com/saksham/networkchat/*.java
+        jar cfe client.jar com.saksham.networkchat.Login -C bin .
+
     - name: Run jpackage
       run: |
         cd frontend
