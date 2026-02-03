@@ -1,6 +1,7 @@
 #!/bin/bash
 # Compile
 echo "Compiling Server..."
+rm -rf backend/bin
 mkdir -p backend/bin
 javac -d backend/bin backend/src/com/saksham/networkchat/server/*.java
 
