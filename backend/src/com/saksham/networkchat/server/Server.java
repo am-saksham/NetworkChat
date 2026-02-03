@@ -245,8 +245,10 @@ public class Server implements Runnable {
 	}
 	
 	public static ServerClient getClient(int id) {
-		for(ServerClient c : allClients) {
-			if(c.getID() == id) return c;
+		synchronized(allClients) {
+			for(ServerClient c : allClients) {
+				if(c.getID() == id) return c;
+			}
 		}
 		return null;
 	}
@@ -255,7 +257,9 @@ public class Server implements Runnable {
 		ServerClient c = getClient(id);
 		if(c == null) return;
 		
-		allClients.remove(c);
+		synchronized(allClients) {
+			allClients.remove(c);
+		}
 		// Remove from rooms
 		List<String> emptyRooms = new ArrayList<>();
 		for(Room r : rooms.values()) {
@@ -275,14 +279,16 @@ public class Server implements Runnable {
 	}
 	
 	public static void sendStatus() {
-		if(allClients.size() <= 0) return;
-		StringBuilder userList = new StringBuilder("/u/");
-		for(ServerClient c : allClients) {
-			userList.append(c.name).append("(").append(c.ID).append(")/u/");
-		}
-		userList.append("e/");
-		for(ServerClient c : allClients) {
-			c.send(userList.toString());
+		synchronized(allClients) {
+			if(allClients.size() <= 0) return;
+			StringBuilder userList = new StringBuilder("/u/");
+			for(ServerClient c : allClients) {
+				userList.append(c.name).append("(").append(c.ID).append(")/u/");
+			}
+			userList.append("e/");
+			for(ServerClient c : allClients) {
+				c.send(userList.toString());
+			}
 		}
 	}
 	
