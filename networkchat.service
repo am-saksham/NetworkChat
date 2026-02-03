@@ -1,0 +1,22 @@
+[Unit]
+Description=Network Chat Server
+After=network.target
+
+[Service]
+# User running the script
+User=ec2-user
+# Directory where your code lives (Ensure this matches your actual directory!)
+WorkingDirectory=/home/ec2-user/chat-server
+
+# Grant permission to bind to Port 443 (Privileged Port) without root
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+# Java Command (Port 443)
+ExecStart=/usr/bin/java -Djavax.net.ssl.keyStore=server.keystore -Djavax.net.ssl.keyStorePassword=password123 -cp backend/bin com.saksham.networkchat.server.ServerMain 443
+
+# Auto-restart if it crashes
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

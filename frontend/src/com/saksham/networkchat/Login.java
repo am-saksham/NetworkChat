@@ -64,7 +64,7 @@ public class Login extends JFrame {
 		lblPort.setBounds(104, 175, 91, 16);
 		contentPane.add(lblPort);
 
-		txtPort = new JTextField("8192");
+		txtPort = new JTextField("443");
 		txtPort.setEditable(false);
 		txtPort.setColumns(10);
 		txtPort.setBounds(67, 194, 165, 28);
@@ -75,7 +75,7 @@ public class Login extends JFrame {
 		lblAddressDesc.setBounds(86, 137, 128, 16);
 		contentPane.add(lblAddressDesc);
 
-		JLabel lblPortDesc = new JLabel("(e.g. 8192)");
+		JLabel lblPortDesc = new JLabel("(e.g. 443)");
 		lblPortDesc.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPortDesc.setBounds(86, 221, 128, 16);
 		contentPane.add(lblPortDesc);

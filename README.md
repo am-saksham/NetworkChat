@@ -89,7 +89,7 @@ flowchart LR
         UI -->|Connects| SSL[SSL/TLS Socket Layer]
     end
     
-    SSL <-->|Encrypted TCP Port 8192| FW[AWS Security Group]
+    SSL <-->|Encrypted TCP Port 443| FW[AWS Security Group]
     
     subgraph AWS Cloud EC2
         FW --> Server[Java Server Backend]
@@ -100,7 +100,7 @@ flowchart LR
 ```
 
 The application follows a standard **Client-Server** architecture secured via SSL/TLS:
-1.  **Client**: Initiates a TCP connection to `52.66.246.194:8192`.
+1.  **Client**: Initiates a TCP connection to `52.66.246.194:443`.
 2.  **Handshake**: Server establishes a secure SSL tunnel.
 3.  **Authentication**: User sends hashed credentials (optional) or guest login.
 4.  **Session**: A persistent `Socket` is maintained for real-time bi-directional communication.
@@ -136,7 +136,7 @@ If you prefer running from source:
 
 ## 🌐 Server Deployment
 
-The server is currently hosted and live at `52.66.246.194:8192`.
+The server is currently hosted and live at `52.66.246.194:443`.
 To host your own instance:
 
 1.  **Generate Keys**:
@@ -147,7 +147,7 @@ To host your own instance:
     ```bash
     ./run_server.sh
     ```
-    *Ensure Port 8192 is open in your firewall.*
+    *Ensure Port 443 is open in your firewall.*
 
 ---
 
