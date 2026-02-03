@@ -1,6 +1,7 @@
 # Binaries
 bin/
 *.class
+frontend/client.jar
 
 # Eclipse
 .classpath
